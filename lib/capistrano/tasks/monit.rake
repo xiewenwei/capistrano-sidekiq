@@ -31,7 +31,7 @@ namespace :sidekiq do
         upload_sidekiq_template 'sidekiq_monit', "#{fetch(:tmp_dir)}/monit.conf", @role
 
         mv_command = "mv #{fetch(:tmp_dir)}/monit.conf #{fetch(:sidekiq_monit_conf_dir)}/#{sidekiq_service_name}.conf"
-        sudo_if_needed mv_command
+        execute_without_sudo mv_command
 
         sudo_if_needed "#{fetch(:monit_bin)} reload"
       end
@@ -131,6 +131,10 @@ namespace :sidekiq do
 
     def sudo_if_needed(command)
       send(use_sudo? ? :sudo : :execute, command)
+    end
+
+    def execute_without_sudo(command)
+      send(:execute, command)
     end
 
     def use_sudo?
